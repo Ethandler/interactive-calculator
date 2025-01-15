@@ -68,7 +68,7 @@ random_facts = [
     "A 'googol' is the number 1 followed by 100 zeros.",
     "In binary, the number 42 is written as 101010.",
     "Did you know? There are 86,400 seconds in a day!",
-    "The Fibonacci sequence is often found in nature, like and sunflowers and your uncles baldspot cowlick!",
+    "The Fibonacci sequence is often found in nature, like on sunflowers and your uncles baldspot cowlick!",
     "The number 4 is considered unlucky in China because it sounds like the word 'death.'",
     "Euler's number (e) is another famous irrational number.",
     "Multiplying any number by 9 and summing its digits results in 9 (e.g., 18 → 1+8=9).",
