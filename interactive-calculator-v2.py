@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox, simpledialog
+from tkinter import ttk, messagebox
 import random
 import datetime
 import os
@@ -49,8 +49,8 @@ def parse_expression(expression):
     """Parse and evaluate the expression safely."""
     try:
         # Convert standalone fractions
-        expression = re.sub(r'(\d+)/(\d+)', r'Fraction(\1, \2)', expression)
-        expression = expression.replace("sqrt", "math.sqrt")
+        expression = re.sub(r'\b(\d+)/(\d+)\b', r'Fraction(\1, \2)', expression)
+        expression = expression.replace("sqrt", "math.sqrt").replace("SQ", "math.sqrt")
         result = eval(expression, {"math": math, "Fraction": Fraction})
         return result
     except Exception as e:
@@ -59,12 +59,12 @@ def parse_expression(expression):
 def calculate():
     """Perform the calculation based on user input."""
     try:
-        expression = simpledialog.askstring("Input", "Enter your calculation (e.g., 9/4 + 3 * sqrt(16)): ")
+        expression = input_entry.get()
         if not expression:
             return
         result = parse_expression(expression)
-        add_to_history(expression, result)
         result_label.config(text=f"Result: {result}")
+        add_to_history(expression, result)
     except Exception as e:
         messagebox.showerror("Error", str(e))
 
@@ -79,54 +79,80 @@ def toggle_dark_mode():
         root.config(bg="#f5f5f5")  # Softer light mode
         frame.config(bg="#eaeaea")
         fact_frame.config(bg="#ffffff")
-        history_frame.config(bg="#f7f7f7")
+        input_frame.config(bg="#eaeaea")
         result_label.config(bg="#eaeaea", fg="black")
         fact_label.config(bg="#ffffff", fg="black")
-        for widget in [frame, fact_frame, history_frame]:
-            for child in widget.winfo_children():
-                child.config(bg=widget.cget("bg"), fg="black")
         toggle_button.config(text="Dark Mode")
         calculate_button.config(bg="#4caf50", fg="white")  # Green for light mode
         random_fact_button.config(bg="#ff0000", fg="white")  # Red for light mode
-        operations_menu.config(bg="#eaeaea", fg="black")
+        tab_control.configure(style="TNotebook")
+        history_tab.config(bg="#ffffff")
+        history_list.config(bg="#ffffff", fg="black")
+        input_entry.config(bg="#ffffff", fg="black")
     else:
         root.config(bg="#121212")
         frame.config(bg="#1e1e1e")
         fact_frame.config(bg="#1e1e1e")
-        history_frame.config(bg="#1e1e1e")
+        input_frame.config(bg="#1e1e1e")
         result_label.config(bg="#1e1e1e", fg="white")
         fact_label.config(bg="#1e1e1e", fg="white")
-        for widget in [frame, fact_frame, history_frame]:
-            for child in widget.winfo_children():
-                child.config(bg=widget.cget("bg"), fg="white")
         toggle_button.config(text="Light Mode")
         calculate_button.config(bg="#ff00ff", fg="white")  # Neon pink for dark mode
         random_fact_button.config(bg="#8000ff", fg="white")  # Neon purple for dark mode
-        operations_menu.config(bg="#1e1e1e", fg="white")
+        style.theme_use("clam")
+        style.configure("TNotebook", background="#1e1e1e")
+        style.configure("TNotebook.Tab", background="#1e1e1e", foreground="white")
+        history_tab.config(bg="#1e1e1e")
+        history_list.config(bg="#1e1e1e", fg="white")
+        input_entry.config(bg="#1e1e1e", fg="white")
 
 # Initialize Tkinter GUI
 root = tk.Tk()
 root.title("Interactive Calculator with Dark Mode")
-root.geometry("600x600")
+root.geometry("800x700")  # Slightly bigger default size
 root.config(bg="#121212")
 
-# Inputs
-frame = tk.Frame(root, bg="#1e1e1e", bd=2, relief=tk.RIDGE, padx=10, pady=10)
+# Tab Control Style
+style = ttk.Style()
+style.theme_create("darkmode", parent="default", settings={
+    "TNotebook": {"configure": {"background": "#121212", "tabmargins": [2, 5, 2, 0]}},
+    "TNotebook.Tab": {
+        "configure": {"background": "#1e1e1e", "foreground": "white"},
+        "map": {"background": ["selected", "#333333"]}
+    }
+})
+style.theme_use("darkmode")
+
+# Tab Control
+tab_control = ttk.Notebook(root)
+main_tab = ttk.Frame(tab_control, style="TNotebook")
+history_tab = ttk.Frame(tab_control, style="TNotebook")
+
+# Add Tabs
+tab_control.add(main_tab, text="Calculator")
+tab_control.add(history_tab, text="History")
+tab_control.pack(expand=1, fill="both")
+
+# Main Tab (Calculator)
+frame = tk.Frame(main_tab, bg="#1e1e1e", bd=2, relief=tk.RIDGE, padx=10, pady=10)
 frame.pack(pady=20)
 
 tk.Label(frame, text="Interactive Calculator", font=("Helvetica", 16), bg="#1e1e1e", fg="white").pack()
 
-operation_var = tk.StringVar(value="+")
-tk.Label(frame, text="Select operation:", bg="#1e1e1e", fg="white").pack()
-operations_menu = tk.OptionMenu(frame, operation_var, "+", "-", "*", "/")
-operations_menu.pack()
-operations_menu.config(bg="#1e1e1e", fg="white")
+# Input Frame
+input_frame = tk.Frame(main_tab, bg="#1e1e1e")
+input_frame.pack(pady=10)
 
-# Buttons
-calculate_button = tk.Button(frame, text="Calculate", command=calculate, bg="#ff00ff", fg="white", padx=10, pady=5)
-calculate_button.pack(pady=5)
+tk.Label(input_frame, text="Enter Calculation (e.g., SQ(16) for sqrt):", font=("Helvetica", 12), bg="#1e1e1e", fg="white").pack(side=tk.LEFT)
+input_entry = tk.Entry(input_frame, width=40, bg="#1e1e1e", fg="white")
+input_entry.pack(side=tk.LEFT, padx=5)
+calculate_button = tk.Button(input_frame, text="Calculate", command=calculate, bg="#ff00ff", fg="white")
+calculate_button.pack(side=tk.LEFT)
+
+# Random Fact Button
 random_fact_button = tk.Button(frame, text="Show Random Fact", command=show_random_fact, bg="#8000ff", fg="white", padx=10, pady=5)
 random_fact_button.pack(pady=5)
+
 toggle_button = tk.Button(frame, text="Light Mode", command=toggle_dark_mode, bg="#607d8b", fg="white", padx=10, pady=5)
 toggle_button.pack(pady=5)
 
@@ -135,22 +161,22 @@ result_label = tk.Label(frame, text="Result: ", font=("Helvetica", 14), bg="#1e1
 result_label.pack()
 
 # Fact Display
-fact_frame = tk.Frame(root, bg="#1e1e1e", bd=2, relief=tk.GROOVE, padx=10, pady=10)
+fact_frame = tk.Frame(main_tab, bg="#1e1e1e", bd=2, relief=tk.GROOVE, padx=10, pady=10)
 fact_frame.pack(pady=20)
 tk.Label(fact_frame, text="Random Fact:", font=("Helvetica", 14), bg="#1e1e1e", fg="white").pack()
 fact_label = tk.Label(fact_frame, text="", wraplength=500, bg="#1e1e1e", fg="white", font=("Helvetica", 12))
 fact_label.pack()
 
-# History Display
-history_frame = tk.Frame(root, bg="#1e1e1e", bd=2, relief=tk.SUNKEN, padx=10, pady=10)
-history_frame.pack(pady=20)
+# History Tab
+history_frame = tk.Frame(history_tab, bg="#1e1e1e", bd=2, relief=tk.SUNKEN, padx=10, pady=10)
+history_frame.pack(pady=20, fill="both", expand=True)
 tk.Label(history_frame, text="Calculation History:", font=("Helvetica", 14), bg="#1e1e1e", fg="white").pack()
-history_list = tk.Listbox(history_frame, width=60, height=10, bg="#1e1e1e", fg="white")
-history_list.pack()
+history_list = tk.Listbox(history_frame, width=80, height=20, bg="#1e1e1e", fg="white")
+history_list.pack(fill="both", expand=True)
 
 # Load persistent history
 for line in load_history():
     history_list.insert(tk.END, line.strip())
 
 # Run GUI loop
-root.mainloop()
+tk.mainloop()
