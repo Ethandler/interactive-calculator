@@ -3,6 +3,25 @@ from tkinter import messagebox, simpledialog
 import random
 import datetime
 import os
+import math
+from fractions import Fraction
+import re
+
+# Expanded random facts list
+random_facts = [
+    "Did you know? Zero is the only number that can't be represented in Roman numerals.",
+    "The number 7 is considered lucky in many cultures!",
+    "Pi is an irrational number—it goes on forever without repeating.",
+    "The word 'hundred' comes from the Old Norse word 'hundrath,' which actually means 120!",
+    "A 'googol' is the number 1 followed by 100 zeros.",
+    "In binary, the number 42 is written as 101010.",
+    "Did you know? There are 86,400 seconds in a day!",
+    "The Fibonacci sequence is often found in nature, like pinecones and sunflowers.",
+    "The number 4 is considered unlucky in China because it sounds like the word 'death.'",
+    "Euler's number (e) is another famous irrational number.",
+    "Multiplying any number by 9 and summing its digits results in 9 (e.g., 18 → 1+8=9).",
+    "The first computer bug was an actual moth stuck in a Harvard Mark II computer in 1947."
+]
 
 # File to store persistent history
 HISTORY_FILE = "calc_history.txt"
@@ -26,37 +45,27 @@ def add_to_history(expression, result):
     history_list.insert(tk.END, entry)
     save_history(entry)
 
+def parse_expression(expression):
+    """Parse and evaluate the expression safely."""
+    try:
+        # Convert standalone fractions
+        expression = re.sub(r'(\d+)/(\d+)', r'Fraction(\1, \2)', expression)
+        expression = expression.replace("sqrt", "math.sqrt")
+        result = eval(expression, {"math": math, "Fraction": Fraction})
+        return result
+    except Exception as e:
+        raise ValueError(f"Invalid expression: {e}")
+
 def calculate():
     """Perform the calculation based on user input."""
     try:
-        numbers = [float(x) for x in simpledialog.askstring("Input", "Enter numbers separated by commas:").split(",")]
-        operation = operation_var.get()
-
-        if operation == "+":
-            result = sum(numbers)
-        elif operation == "-":
-            result = numbers[0]
-            for num in numbers[1:]:
-                result -= num
-        elif operation == "*":
-            result = 1
-            for num in numbers:
-                result *= num
-        elif operation == "/":
-            result = numbers[0]
-            for num in numbers[1:]:
-                if num == 0:
-                    raise ZeroDivisionError("Division by zero is not allowed!")
-                result /= num
-        else:
-            messagebox.showerror("Error", "Invalid operation selected!")
+        expression = simpledialog.askstring("Input", "Enter your calculation (e.g., 9/4 + 3 * sqrt(16)): ")
+        if not expression:
             return
-
-        add_to_history(f"{' '.join(map(str, numbers))} {operation}", result)
+        result = parse_expression(expression)
+        add_to_history(expression, result)
         result_label.config(text=f"Result: {result}")
-    except ValueError:
-        messagebox.showerror("Error", "Please enter valid numbers!")
-    except ZeroDivisionError as e:
+    except Exception as e:
         messagebox.showerror("Error", str(e))
 
 def show_random_fact():
@@ -79,6 +88,7 @@ def toggle_dark_mode():
         toggle_button.config(text="Dark Mode")
         calculate_button.config(bg="#4caf50", fg="white")  # Green for light mode
         random_fact_button.config(bg="#ff0000", fg="white")  # Red for light mode
+        operations_menu.config(bg="#eaeaea", fg="black")
     else:
         root.config(bg="#121212")
         frame.config(bg="#1e1e1e")
@@ -92,22 +102,7 @@ def toggle_dark_mode():
         toggle_button.config(text="Light Mode")
         calculate_button.config(bg="#ff00ff", fg="white")  # Neon pink for dark mode
         random_fact_button.config(bg="#8000ff", fg="white")  # Neon purple for dark mode
-
-# Expanded random facts list
-random_facts = [
-    "Did you know? Zero is the only number that can't be represented in Roman numerals.",
-    "The number 7 is considered lucky in many cultures!",
-    "Pi is an irrational number—it goes on forever without repeating.",
-    "The word 'hundred' comes from the Old Norse word 'hundrath,' which actually means 120!",
-    "A 'googol' is the number 1 followed by 100 zeros.",
-    "In binary, the number 42 is written as 101010.",
-    "Did you know? There are 86,400 seconds in a day!",
-    "The Fibonacci sequence is often found in nature, like pinecones and sunflowers.",
-    "The number 4 is considered unlucky in China because it sounds like the word 'death.'",
-    "Euler's number (e) is another famous irrational number.",
-    "Multiplying any number by 9 and summing its digits results in 9 (e.g., 18 → 1+8=9).",
-    "The first computer bug was an actual moth stuck in a Harvard Mark II computer in 1947."
-]
+        operations_menu.config(bg="#1e1e1e", fg="white")
 
 # Initialize Tkinter GUI
 root = tk.Tk()
