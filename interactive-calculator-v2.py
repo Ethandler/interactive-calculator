@@ -73,38 +73,10 @@ def show_random_fact():
     fact = random.choice(random_facts)
     fact_label.config(text=fact)
 
-def toggle_dark_mode():
-    """Toggle between light and dark mode."""
-    if root.cget("bg") == "#121212":
-        root.config(bg="#f5f5f5")  # Softer light mode
-        frame.config(bg="#eaeaea")
-        fact_frame.config(bg="#ffffff")
-        input_frame.config(bg="#eaeaea")
-        result_label.config(bg="#eaeaea", fg="black")
-        fact_label.config(bg="#ffffff", fg="black")
-        toggle_button.config(text="Dark Mode")
-        calculate_button.config(bg="#4caf50", fg="white")  # Green for light mode
-        random_fact_button.config(bg="#ff0000", fg="white")  # Red for light mode
-        tab_control.configure(style="TNotebook")
-        history_tab.config(bg="#ffffff")
-        history_list.config(bg="#ffffff", fg="black")
-        input_entry.config(bg="#ffffff", fg="black")
-    else:
-        root.config(bg="#121212")
-        frame.config(bg="#1e1e1e")
-        fact_frame.config(bg="#1e1e1e")
-        input_frame.config(bg="#1e1e1e")
-        result_label.config(bg="#1e1e1e", fg="white")
-        fact_label.config(bg="#1e1e1e", fg="white")
-        toggle_button.config(text="Light Mode")
-        calculate_button.config(bg="#ff00ff", fg="white")  # Neon pink for dark mode
-        random_fact_button.config(bg="#8000ff", fg="white")  # Neon purple for dark mode
-        style.theme_use("clam")
-        style.configure("TNotebook", background="#1e1e1e")
-        style.configure("TNotebook.Tab", background="#1e1e1e", foreground="white")
-        history_tab.config(bg="#1e1e1e")
-        history_list.config(bg="#1e1e1e", fg="white")
-        input_entry.config(bg="#1e1e1e", fg="white")
+def close_app():
+    """Close the application with a confirmation message."""
+    if messagebox.askokcancel("Quit", "Nooo! Don't kill me! JKJK have a nice day! ;)"):
+        root.destroy()
 
 # Initialize Tkinter GUI
 root = tk.Tk()
@@ -114,14 +86,17 @@ root.config(bg="#121212")
 
 # Tab Control Style
 style = ttk.Style()
-style.theme_create("darkmode", parent="default", settings={
-    "TNotebook": {"configure": {"background": "#121212", "tabmargins": [2, 5, 2, 0]}},
-    "TNotebook.Tab": {
-        "configure": {"background": "#1e1e1e", "foreground": "white"},
-        "map": {"background": ["selected", "#333333"]}
-    }
-})
-style.theme_use("darkmode")
+try:
+    style.theme_create("darkmode", parent="clam", settings={
+        "TNotebook": {"configure": {"background": "#121212", "tabmargins": [2, 5, 2, 0]}},
+        "TNotebook.Tab": {
+            "configure": {"background": "#1e1e1e", "foreground": "white"}
+        }
+    })
+    style.theme_use("darkmode")
+except tk.TclError as e:
+    print(f"Theme creation failed: {e}")
+    style.theme_use("clam")
 
 # Tab Control
 tab_control = ttk.Notebook(root)
@@ -153,8 +128,8 @@ calculate_button.pack(side=tk.LEFT)
 random_fact_button = tk.Button(frame, text="Show Random Fact", command=show_random_fact, bg="#8000ff", fg="white", padx=10, pady=5)
 random_fact_button.pack(pady=5)
 
-toggle_button = tk.Button(frame, text="Light Mode", command=toggle_dark_mode, bg="#607d8b", fg="white", padx=10, pady=5)
-toggle_button.pack(pady=5)
+close_button = tk.Button(frame, text="Close Me", command=close_app, bg="#607d8b", fg="white", padx=10, pady=5)
+close_button.pack(pady=5)
 
 # Result Display
 result_label = tk.Label(frame, text="Result: ", font=("Helvetica", 14), bg="#1e1e1e", fg="white")
