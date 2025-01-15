@@ -64,6 +64,35 @@ def show_random_fact():
     fact = random.choice(random_facts)
     fact_label.config(text=fact)
 
+def toggle_dark_mode():
+    """Toggle between light and dark mode."""
+    if root.cget("bg") == "#121212":
+        root.config(bg="#f5f5f5")  # Softer light mode
+        frame.config(bg="#eaeaea")
+        fact_frame.config(bg="#ffffff")
+        history_frame.config(bg="#f7f7f7")
+        result_label.config(bg="#eaeaea", fg="black")
+        fact_label.config(bg="#ffffff", fg="black")
+        for widget in [frame, fact_frame, history_frame]:
+            for child in widget.winfo_children():
+                child.config(bg=widget.cget("bg"), fg="black")
+        toggle_button.config(text="Dark Mode")
+        calculate_button.config(bg="#4caf50", fg="white")  # Green for light mode
+        random_fact_button.config(bg="#ff0000", fg="white")  # Red for light mode
+    else:
+        root.config(bg="#121212")
+        frame.config(bg="#1e1e1e")
+        fact_frame.config(bg="#1e1e1e")
+        history_frame.config(bg="#1e1e1e")
+        result_label.config(bg="#1e1e1e", fg="white")
+        fact_label.config(bg="#1e1e1e", fg="white")
+        for widget in [frame, fact_frame, history_frame]:
+            for child in widget.winfo_children():
+                child.config(bg=widget.cget("bg"), fg="white")
+        toggle_button.config(text="Light Mode")
+        calculate_button.config(bg="#ff00ff", fg="white")  # Neon pink for dark mode
+        random_fact_button.config(bg="#8000ff", fg="white")  # Neon purple for dark mode
+
 # Expanded random facts list
 random_facts = [
     "Did you know? Zero is the only number that can't be represented in Roman numerals.",
@@ -82,41 +111,46 @@ random_facts = [
 
 # Initialize Tkinter GUI
 root = tk.Tk()
-root.title("Enhanced Interactive Calculator")
+root.title("Interactive Calculator with Dark Mode")
 root.geometry("600x600")
-root.config(bg="#f0f8ff")
+root.config(bg="#121212")
 
 # Inputs
-frame = tk.Frame(root, bg="#dbe9f4", bd=2, relief=tk.RIDGE, padx=10, pady=10)
+frame = tk.Frame(root, bg="#1e1e1e", bd=2, relief=tk.RIDGE, padx=10, pady=10)
 frame.pack(pady=20)
 
-tk.Label(frame, text="Interactive Calculator", font=("Helvetica", 16), bg="#dbe9f4").pack()
+tk.Label(frame, text="Interactive Calculator", font=("Helvetica", 16), bg="#1e1e1e", fg="white").pack()
 
 operation_var = tk.StringVar(value="+")
-tk.Label(frame, text="Select operation:", bg="#dbe9f4").pack()
+tk.Label(frame, text="Select operation:", bg="#1e1e1e", fg="white").pack()
 operations_menu = tk.OptionMenu(frame, operation_var, "+", "-", "*", "/")
 operations_menu.pack()
+operations_menu.config(bg="#1e1e1e", fg="white")
 
 # Buttons
-tk.Button(frame, text="Calculate", command=calculate, bg="#4caf50", fg="white", padx=10, pady=5).pack(pady=5)
-tk.Button(frame, text="Show Random Fact", command=show_random_fact, bg="#2196f3", fg="white", padx=10, pady=5).pack(pady=5)
+calculate_button = tk.Button(frame, text="Calculate", command=calculate, bg="#ff00ff", fg="white", padx=10, pady=5)
+calculate_button.pack(pady=5)
+random_fact_button = tk.Button(frame, text="Show Random Fact", command=show_random_fact, bg="#8000ff", fg="white", padx=10, pady=5)
+random_fact_button.pack(pady=5)
+toggle_button = tk.Button(frame, text="Light Mode", command=toggle_dark_mode, bg="#607d8b", fg="white", padx=10, pady=5)
+toggle_button.pack(pady=5)
 
 # Result Display
-result_label = tk.Label(frame, text="Result: ", font=("Helvetica", 14), bg="#dbe9f4")
+result_label = tk.Label(frame, text="Result: ", font=("Helvetica", 14), bg="#1e1e1e", fg="white")
 result_label.pack()
 
 # Fact Display
-fact_frame = tk.Frame(root, bg="#e3f2fd", bd=2, relief=tk.GROOVE, padx=10, pady=10)
+fact_frame = tk.Frame(root, bg="#1e1e1e", bd=2, relief=tk.GROOVE, padx=10, pady=10)
 fact_frame.pack(pady=20)
-tk.Label(fact_frame, text="Random Fact:", font=("Helvetica", 14), bg="#e3f2fd").pack()
-fact_label = tk.Label(fact_frame, text="", wraplength=500, bg="#e3f2fd", font=("Helvetica", 12))
+tk.Label(fact_frame, text="Random Fact:", font=("Helvetica", 14), bg="#1e1e1e", fg="white").pack()
+fact_label = tk.Label(fact_frame, text="", wraplength=500, bg="#1e1e1e", fg="white", font=("Helvetica", 12))
 fact_label.pack()
 
 # History Display
-history_frame = tk.Frame(root, bg="#f8f9fa", bd=2, relief=tk.SUNKEN, padx=10, pady=10)
+history_frame = tk.Frame(root, bg="#1e1e1e", bd=2, relief=tk.SUNKEN, padx=10, pady=10)
 history_frame.pack(pady=20)
-tk.Label(history_frame, text="Calculation History:", font=("Helvetica", 14), bg="#f8f9fa").pack()
-history_list = tk.Listbox(history_frame, width=60, height=10)
+tk.Label(history_frame, text="Calculation History:", font=("Helvetica", 14), bg="#1e1e1e", fg="white").pack()
+history_list = tk.Listbox(history_frame, width=60, height=10, bg="#1e1e1e", fg="white")
 history_list.pack()
 
 # Load persistent history
